@@ -1,5 +1,5 @@
 {
-    "name": "SimpleView for PHP",
+    "name": "joppyo/simpleview-php",
     "description": "SimpleView PHP API",
     "minimum-stability": "dev",
     "require-dev": {
