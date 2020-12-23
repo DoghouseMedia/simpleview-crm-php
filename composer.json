@@ -1,6 +1,7 @@
 {
     "name": "SimpleView for PHP",
     "description": "SimpleView PHP API",
+    "minimum-stability": "dev",
     "require-dev": {
         "phpunit/phpunit": "^7"
     }
