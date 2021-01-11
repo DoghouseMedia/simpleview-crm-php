@@ -1,5 +1,5 @@
 {
-    "name": "joppyo/simpleview-php",
+    "name": "doghouseagency/simpleview-crm-php",
     "description": "SimpleView PHP API",
     "minimum-stability": "dev",
     "require-dev": {
