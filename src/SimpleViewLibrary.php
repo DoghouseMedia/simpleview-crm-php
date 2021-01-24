@@ -45,7 +45,7 @@ class SimpleViewLibrary
         $this->_serviceUrl     = $config->serviceUrl;
         $this->_soapClient     = new \SoapClient($this->_serviceUrl, array('exceptions' => 0));
     }
-    
+
     /**
      * Get the listing types
      *
@@ -112,7 +112,7 @@ class SimpleViewLibrary
      *
      * @return object
      */
-    public function getListing($listingId, $updateHits)
+    public function getListing($listingId, $updateHits = 0)
     {
         $results;
 
@@ -165,7 +165,7 @@ class SimpleViewLibrary
     public function getListingSubCategories($listingCategoryId, $listingTypeId)
     {
         $results;
-    
+
         try {
             $results = $this->_soapClient->getListingSubCats(
                 $this->_clientUserName,
@@ -176,7 +176,7 @@ class SimpleViewLibrary
         } catch (Exception $e) {
             $results = false;
         }
-        
+
         return $results;
     }
 
@@ -190,7 +190,7 @@ class SimpleViewLibrary
     public function getListingRegions($catId)
     {
         $results;
-        
+
         try {
             $results = $this->_soapClient->getListingRegions(
                 $this->_clientUserName,
@@ -200,10 +200,10 @@ class SimpleViewLibrary
         } catch (Exception $e) {
             $results = false;
         }
-        
+
         return $results;
     }
-    
+
     /**
      * List Amenities
      *
@@ -212,7 +212,7 @@ class SimpleViewLibrary
     public function getListingAmenities()
     {
         $results;
-        
+
         try {
             $results = $this->_soapClient->getListingAmenities(
                 $this->_clientUserName,
@@ -221,10 +221,10 @@ class SimpleViewLibrary
         } catch (Exception $e) {
             $results = false;
         }
-        
+
         return $results;
     }
-    
+
     /**
      * Coupon categories
      *
@@ -233,7 +233,7 @@ class SimpleViewLibrary
     public function getCouponCategories()
     {
         $results;
-        
+
         try {
             $results = $this->_soapClient->getCouponCats(
                 $this->_clientUserName,
@@ -242,10 +242,10 @@ class SimpleViewLibrary
         } catch (Exception $e) {
             $results = false;
         }
-        
+
         return $results;
     }
-    
+
     /**
      * Coupons
      *
@@ -258,7 +258,7 @@ class SimpleViewLibrary
     public function getCoupons($pageNum, $pageSize, $filter)
     {
         $results;
-        
+
         try {
             $results = $this->_soapClient->getCoupons(
                 $this->_clientUserName,
@@ -270,10 +270,10 @@ class SimpleViewLibrary
         } catch (Exception $e) {
             $results = false;
         }
-        
+
         return $results;
     }
-    
+
     /**
      * Coupons by category id
      *
@@ -291,7 +291,7 @@ class SimpleViewLibrary
         $filters
     ) {
         $results;
-        
+
         try {
             $results = $this->_soapClient->getCouponsByCats(
                 $this->_clientUserName,
@@ -304,10 +304,10 @@ class SimpleViewLibrary
         } catch (Exception $e) {
             $results = false;
         }
-        
+
         return $results;
     }
-    
+
     /**
      * Coupons associated to the Listing Id
      *
@@ -329,7 +329,7 @@ class SimpleViewLibrary
         $keywords
     ) {
         $results;
-        
+
         try {
             $results = $this->_soapClient->getCouponsByListingId(
                 $this->_clientUserName,
@@ -344,10 +344,10 @@ class SimpleViewLibrary
         } catch (Exception $e) {
             $results = false;
         }
-        
+
         return $results;
     }
-    
+
     /**
      * Get the coupon
      *
@@ -359,7 +359,7 @@ class SimpleViewLibrary
     public function getCoupon($couponId, $updateHits)
     {
         $results;
-        
+
         try {
             $results = $this->_soapClient->getCoupon(
                 $this->_clientUserName,
@@ -370,10 +370,10 @@ class SimpleViewLibrary
         } catch (Exception $e) {
             $results = false;
         }
-        
+
         return $results;
     }
-    
+
     /**
      * Update the hits
      *
@@ -386,7 +386,7 @@ class SimpleViewLibrary
     public function updateHits($hitTypeID, $recId, $hitDate)
     {
         $results;
-        
+
         try {
             $results = $this->_soapClient->updateHits(
                 $this->_clientUserName,
@@ -398,7 +398,82 @@ class SimpleViewLibrary
         } catch (Exception $e) {
             $results = false;
         }
-        
+
+        return $results;
+    }
+
+    /**
+     * Get listing that has been added since $lastSync date.
+     *
+     * Note: this is a custom method which only available for some clients.
+     *
+     * @param string $lastSync
+     *   Date string e.g. 2020-12-01
+     *
+     * @return array|bool array response or false if failed.
+     */
+    public function getNewListings($lastSync)
+    {
+        try {
+            $results = $this->_soapClient->getNewListings(
+                $this->_clientUserName,
+                $this->_clientPassword,
+                $lastSync
+            );
+        } catch (Exception $e) {
+            $results = false;
+        }
+
+        return $results;
+    }
+
+    /**
+     * Get listing that has been updated since $lastSync date.
+     *
+     * Note: this is a custom method which only available for some clients.
+     *
+     * @param string $lastSync
+     *   Date string e.g. 2020-12-01
+     *
+     * @return array|bool array response or false if failed.
+     */
+    public function getChangedListings($lastSync)
+    {
+        try {
+            $results = $this->_soapClient->getChangedListings(
+                $this->_clientUserName,
+                $this->_clientPassword,
+                $lastSync
+            );
+        } catch (Exception $e) {
+            $results = false;
+        }
+
+        return $results;
+    }
+
+    /**
+     * Get listing that has been removed since $lastSync date.
+     *
+     * Note: this is a custom method which only available for some clients.
+     *
+     * @param string $lastSync
+     *   Date string e.g. 2020-12-01
+     *
+     * @return array|bool array response or false if failed.
+     */
+    public function getRemovedListings($lastSync)
+    {
+        try {
+            $results = $this->_soapClient->getRemovedListings(
+                $this->_clientUserName,
+                $this->_clientPassword,
+                $lastSync
+            );
+        } catch (Exception $e) {
+            $results = false;
+        }
+
         return $results;
     }
 }
