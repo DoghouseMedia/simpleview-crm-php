@@ -14,6 +14,7 @@
 namespace SimpleView;
 
 use PHPUnit\Exception;
+use soapval;
 
 /**
  * SimpleView Filter class
@@ -35,9 +36,9 @@ class SimpleViewFilter
      * Setup filter
      *
      * @param integer $fieldCategory category
-     * @param string  $fieldName     name
-     * @param integer $filterType    type
-     * @param integer $filterValue   value
+     * @param string $fieldName name
+     * @param integer $filterType type
+     * @param integer $filterValue value
      */
     public function __construct(
         $fieldCategory,
@@ -46,9 +47,9 @@ class SimpleViewFilter
         $filterValue
     ) {
         $this->fieldCategory = $fieldCategory;
-        $this->fieldName     = $fieldName;
-        $this->filterType    = $filterType;
-        $this->filterValue   = $filterValue;
+        $this->fieldName = $fieldName;
+        $this->filterType = $filterType;
+        $this->filterValue = $filterValue;
     }
 
     /**
@@ -66,24 +67,22 @@ class SimpleViewFilter
         );
         return self::generateFilter($filter);
     }
-    
+
     /**
      * Generate filters
      *
      * @param object $filterObject create filter object
      *
-     * @return object
+     * @return array
      */
     public static function generateFilter($filterObject)
     {
-        $filter = array(
+        return [
             'ANDOR' => 'OR',
-            'FILTERS' => array(
-                $filterObject->toArray()
-            )
-        );
-        
-        return $filter;
+            'FILTERS' => [
+                new soapval('item', 'Map', $filterObject->toArray(), '', 'http://xml.apache.org/xml-soap')
+            ]
+        ];
     }
 
     /**
@@ -115,9 +114,9 @@ class SimpleViewFilter
     {
         return array(
             'FIELDCATEGORY' => $this->fieldCategory,
-            'FIELDNAME'     => $this->fieldName,
-            'FILTERTYPE'    => $this->filterType,
-            'FILTERVALUE'   => $this->filterValue
+            'FIELDNAME' => $this->fieldName,
+            'FILTERTYPE' => $this->filterType,
+            'FILTERVALUE' => $this->filterValue
         );
     }
 
