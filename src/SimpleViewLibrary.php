@@ -14,6 +14,7 @@
 namespace SimpleView;
 
 use PHPUnit\Exception;
+use nusoap_client;
 
 /**
  * SimpleView PHP Library Class
@@ -30,7 +31,7 @@ class SimpleViewLibrary
 {
     private $_clientUserName = '';
     private $_clientPassword = '';
-    private $_serviceUrl     = '';
+    private $_serviceUrl = '';
     private $_soapClient;
 
     /**
@@ -42,8 +43,31 @@ class SimpleViewLibrary
     {
         $this->_clientUserName = $config->clientUserName;
         $this->_clientPassword = $config->clientPassword;
-        $this->_serviceUrl     = $config->serviceUrl;
-        $this->_soapClient     = new \SoapClient($this->_serviceUrl, array('exceptions' => 0));
+        $this->_serviceUrl = $config->serviceUrl;
+
+        $client = new nusoap_client($this->_serviceUrl, 'wsdl');
+        $client->soap_defencoding = 'UTF-8';
+        $client->decode_utf8 = false;
+        $this->_soapClient = $client;
+    }
+
+    /**
+     * Wrapper function to call soap client method.
+     *
+     * @param $action
+     * @param array $params
+     * @return bool|mixed
+     */
+    private function call($action, $params = [])
+    {
+        $data = array_merge([$this->_clientUserName, $this->_clientPassword], $params);
+
+        try {
+            $results = $this->_soapClient->call($action, $data);
+        } catch (Exception $e) {
+            $results = false;
+        }
+        return $results;
     }
 
     /**
@@ -51,83 +75,49 @@ class SimpleViewLibrary
      *
      * @param [bit] $showWeb a flag to get the listing types
      *
-     * @return $results
+     * @return array|bool array response or false if failed.
      */
     public function getListingTypes($showWeb)
     {
-        $results;
-
-        try {
-            $results = $this->_soapClient->getListingTypes(
-                $this->_clientUserName,
-                $this->_clientPassword,
-                $showWeb
-            );
-        } catch (Exception $e) {
-            $results = $e;
-        }
-
-        return $results;
+        return $this->call('getListingTypes', [
+            $showWeb
+        ]);
     }
 
     /**
      * Get the business listings
      *
-     * @param integer $pageSize         the number of items per page
-     * @param integer $pageNum          the page requested
-     * @param object  $filter           filtered listings
+     * @param integer $pageNum the page requested
+     * @param integer $pageSize the number of items per page
+     * @param object $filter filtered listings
      * @param integer $displayAmenities amenities yes(1) or no(0)
      *
-     * @return $results
+     * @return array|bool array response or false if failed.
      */
-    public function getListings($pageSize, $pageNum, $filter, $displayAmenities)
+    public function getListings($pageNum, $pageSize, $filter, $displayAmenities = 0)
     {
-        $results = null;
-
-        if ($displayAmenities === null) {
-            $displayAmenities = false;
-        }
-
-        try {
-            $results = $this->_soapClient->getListings(
-                $this->_clientUserName,
-                $this->_clientPassword,
-                $pageNum,
-                $pageSize,
-                $filter,
-                ($displayAmenities === true) ? 1 : 0
-            );
-        } catch (Exception $e) {
-            $results = $e;
-        }
-
-        return $results;
+        return $this->call('getListings', [
+            $pageNum,
+            $pageSize,
+            $filter,
+            $displayAmenities
+        ]);
     }
 
     /**
      * Get the business listing
      *
-     * @param integer $listingId  the id number of the listing
+     * @param integer $listingId the id number of the listing
      * @param integer $updateHits text
      *
-     * @return object
+     * @return array|bool array response or false if failed.
      */
     public function getListing($listingId, $updateHits = 0)
     {
-        $results;
-
-        try {
-            $results = $this->_soapClient->getListing(
-                $this->_clientUserName,
-                $this->_clientPassword,
-                $listingId,
-                $updateHits
-            );
-        } catch (Exception $e) {
-            $results = false;
-        }
-
-        return $results;
+        return $this->call('getListing', [
+            $listingId,
+            $updateHits
+        ]);
     }
 
     /**
@@ -135,23 +125,13 @@ class SimpleViewLibrary
      *
      * @param [type] $listingTypeId use the listing type
      *
-     * @return void
+     * @return array|bool array response or false if failed.
      */
     public function getListingCategories($listingTypeId)
     {
-        $results;
-
-        try {
-            $results = $this->_soapClient->getListingCats(
-                $this->_clientUserName,
-                $this->_clientPassword,
-                $listingTypeId
-            );
-        } catch (Exception $e) {
-            $results = false;
-        }
-
-        return $results;
+        return $this->call('getListingCats', [
+            $listingTypeId
+        ]);
     }
 
     /**
@@ -160,24 +140,14 @@ class SimpleViewLibrary
      * @param [type] $listingCategoryId Category Id
      * @param [type] $listingTypeId     Type Id
      *
-     * @return void
+     * @return array|bool array response or false if failed.
      */
     public function getListingSubCategories($listingCategoryId, $listingTypeId)
     {
-        $results;
-
-        try {
-            $results = $this->_soapClient->getListingSubCats(
-                $this->_clientUserName,
-                $this->_clientPassword,
-                $listingCategoryId,
-                $listingTypeId
-            );
-        } catch (Exception $e) {
-            $results = false;
-        }
-
-        return $results;
+        return $this->call('getListingSubCats', [
+            $listingCategoryId,
+            $listingTypeId
+        ]);
     }
 
     /**
@@ -185,65 +155,43 @@ class SimpleViewLibrary
      *
      * @param [type] $catId Category Id
      *
-     * @return regions
+     * @return array|bool array response or false if failed.
      */
     public function getListingRegions($catId)
     {
-        $results;
-
-        try {
-            $results = $this->_soapClient->getListingRegions(
-                $this->_clientUserName,
-                $this->_clientPassword,
-                $catId
-            );
-        } catch (Exception $e) {
-            $results = false;
-        }
-
-        return $results;
+        return $this->call('getListingRegions', [
+            $catId
+        ]);
     }
 
     /**
      * List Amenities
      *
-     * @return amenities
+     * @return array|bool array response or false if failed.
      */
     public function getListingAmenities()
     {
-        $results;
+        return $this->call('getAmenityList');
+    }
 
-        try {
-            $results = $this->_soapClient->getListingAmenities(
-                $this->_clientUserName,
-                $this->_clientPassword
-            );
-        } catch (Exception $e) {
-            $results = false;
-        }
-
-        return $results;
+    /**
+     * Get amenity groups.
+     *
+     * @return array|bool array response or false if failed.
+     */
+    public function getAmenityGroups()
+    {
+        return $this->call('getAmenityGroups');
     }
 
     /**
      * Coupon categories
      *
-     * @return void
+     * @return array|bool array response or false if failed.
      */
     public function getCouponCategories()
     {
-        $results;
-
-        try {
-            $results = $this->_soapClient->getCouponCats(
-                $this->_clientUserName,
-                $this->_clientPassword
-            );
-        } catch (Exception $e) {
-            $results = false;
-        }
-
-        return $results;
+        return $this->call('getCouponCats');
     }
 
     /**
@@ -253,36 +201,26 @@ class SimpleViewLibrary
      * @param [type] $pageSize page size
      * @param [type] $filter   filter
      *
-     * @return void
+     * @return array|bool array response or false if failed.
      */
     public function getCoupons($pageNum, $pageSize, $filter)
     {
-        $results;
-
-        try {
-            $results = $this->_soapClient->getCoupons(
-                $this->_clientUserName,
-                $this->_clientPassword,
-                $pageNum,
-                $pageSize,
-                $filter
-            );
-        } catch (Exception $e) {
-            $results = false;
-        }
-
-        return $results;
+        return $this->call('getCoupons', [
+            $pageNum,
+            $pageSize,
+            $filter
+        ]);
     }
 
     /**
      * Coupons by category id
      *
      * @param integer $couponCatId category id
-     * @param integer $pageNum     page number
-     * @param integer $pageSize    number of results per page
-     * @param object  $filters     filter
+     * @param integer $pageNum page number
+     * @param integer $pageSize number of results per page
+     * @param object $filters filter
      *
-     * @return void
+     * @return array|bool array response or false if failed.
      */
     public function getCouponsByCategories(
         $couponCatId,
@@ -290,22 +228,12 @@ class SimpleViewLibrary
         $pageSize,
         $filters
     ) {
-        $results;
-
-        try {
-            $results = $this->_soapClient->getCouponsByCats(
-                $this->_clientUserName,
-                $this->_clientPassword,
-                $couponCatId,
-                $pageNum,
-                $pageSize,
-                $filters
-            );
-        } catch (Exception $e) {
-            $results = false;
-        }
-
-        return $results;
+        return $this->call('getCouponsByCats', [
+            $couponCatId,
+            $pageNum,
+            $pageSize,
+            $filters
+        ]);
     }
 
     /**
@@ -318,7 +246,7 @@ class SimpleViewLibrary
      * @param [type] $redeemEnd   coupon redemption end date
      * @param [type] $keywords    keywords
      *
-     * @return void
+     * @return array|bool array response or false if failed.
      */
     public function getCouponsByListingId(
         $listingId,
@@ -328,24 +256,14 @@ class SimpleViewLibrary
         $redeemEnd,
         $keywords
     ) {
-        $results;
-
-        try {
-            $results = $this->_soapClient->getCouponsByListingId(
-                $this->_clientUserName,
-                $this->_clientPassword,
-                $listingId,
-                $pageNum,
-                $pageSize,
-                $redeemStart,
-                $redeemEnd,
-                $keywords
-            );
-        } catch (Exception $e) {
-            $results = false;
-        }
-
-        return $results;
+        return $this->call('getCouponsByListingId', [
+            $listingId,
+            $pageNum,
+            $pageSize,
+            $redeemStart,
+            $redeemEnd,
+            $keywords
+        ]);
     }
 
     /**
@@ -354,24 +272,14 @@ class SimpleViewLibrary
      * @param [type] $couponId   coupon id
      * @param [type] $updateHits how many times used
      *
-     * @return void
+     * @return array|bool array response or false if failed.
      */
     public function getCoupon($couponId, $updateHits)
     {
-        $results;
-
-        try {
-            $results = $this->_soapClient->getCoupon(
-                $this->_clientUserName,
-                $this->_clientPassword,
-                $couponId,
-                $updateHits
-            );
-        } catch (Exception $e) {
-            $results = false;
-        }
-
-        return $results;
+        return $this->call('getCoupon', [
+            $couponId,
+            $updateHits
+        ]);
     }
 
     /**
@@ -385,21 +293,11 @@ class SimpleViewLibrary
      */
     public function updateHits($hitTypeID, $recId, $hitDate)
     {
-        $results;
-
-        try {
-            $results = $this->_soapClient->updateHits(
-                $this->_clientUserName,
-                $this->_clientPassword,
-                $hitTypeID,
-                $recId,
-                $hitDate
-            );
-        } catch (Exception $e) {
-            $results = false;
-        }
-
-        return $results;
+        return $this->call('updateHits', [
+            $hitTypeID,
+            $recId,
+            $hitDate
+        ]);
     }
 
     /**
@@ -414,17 +312,7 @@ class SimpleViewLibrary
      */
     public function getNewListings($lastSync)
     {
-        try {
-            $results = $this->_soapClient->getNewListings(
-                $this->_clientUserName,
-                $this->_clientPassword,
-                $lastSync
-            );
-        } catch (Exception $e) {
-            $results = false;
-        }
-
-        return $results;
+        return $this->call('getNewListings', [$lastSync]);
     }
 
     /**
@@ -439,17 +327,7 @@ class SimpleViewLibrary
      */
     public function getChangedListings($lastSync)
     {
-        try {
-            $results = $this->_soapClient->getChangedListings(
-                $this->_clientUserName,
-                $this->_clientPassword,
-                $lastSync
-            );
-        } catch (Exception $e) {
-            $results = false;
-        }
-
-        return $results;
+        return $this->call('getChangedListings', [$lastSync]);
     }
 
     /**
@@ -464,16 +342,6 @@ class SimpleViewLibrary
      */
     public function getRemovedListings($lastSync)
     {
-        try {
-            $results = $this->_soapClient->getRemovedListings(
-                $this->_clientUserName,
-                $this->_clientPassword,
-                $lastSync
-            );
-        } catch (Exception $e) {
-            $results = false;
-        }
-
-        return $results;
+        return $this->call('getRemovedListings', [$lastSync]);
     }
 }

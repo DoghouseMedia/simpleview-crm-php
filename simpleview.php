@@ -15,6 +15,8 @@
  * @description main simpleView functionality
  */
 
+require __DIR__ . '/vendor/autoload.php';
+
 use SimpleView\SimpleViewLibrary;
 use SimpleView\SimpleViewFilter;
 use PHPUnit\Exception;
@@ -72,8 +74,8 @@ function getListings(
     $showAmenities
 ) {
     return $connection->getListings(
-        $pageSize,
         $pageNumber,
+        $pageSize,
         $filterAllListings,
         $showAmenities
     );
@@ -137,7 +139,7 @@ function getListingIds($connection, $filter, $pageSize)
     $results = array();
 
     for ($page = 1; $page<=$pages; $page++) {
-        $listings = $connection->getListings($pageSize, $page, $filter, 0);
+        $listings = $connection->getListings($page, $pageSize, $filter, 0);
     
         foreach ($listings["DATA"] as $listing) {
             array_push($results, $listing["LISTINGID"]);
