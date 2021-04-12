@@ -1,0 +1,16 @@
+{
+    "username": "xxxxxxxx",
+    "password": "xxxxxxxx",
+    "soapurl": "http://xxxxxxxx.simpleviewcrm.com/webapi/listings/soap/listings.cfc?wsdl",
+    "listings": {
+        "pageSize": 100,
+        "showAmenities": false
+    },
+    "filter": {
+        "filterType": "GREATER THAN",
+        "fieldCategory": "Listing",
+        "filterValue": 0,
+        "fieldName": "Listingid"
+    },
+    "testListingId": 120
+}

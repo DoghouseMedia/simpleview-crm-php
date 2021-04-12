@@ -13,7 +13,6 @@
 
 namespace SimpleView;
 
-use PHPUnit\Exception;
 use nusoap_client;
 
 /**
@@ -64,7 +63,7 @@ class SimpleViewLibrary
 
         try {
             $results = $this->_soapClient->call($action, $data);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $results = false;
         }
         return $results;
@@ -293,7 +292,7 @@ class SimpleViewLibrary
      */
     public function updateHits($hitTypeID, $recId, $hitDate)
     {
-        return $this->call('updateHits', [
+        return $this->call('updatehits', [
             $hitTypeID,
             $recId,
             $hitDate
